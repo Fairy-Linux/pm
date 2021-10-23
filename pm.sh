@@ -30,7 +30,7 @@ error() {
 # Install function.
 install_package() {
 	# Checking if package exists or not
-	if [[ $(curl -s -S -L -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information.") -eq 404 ]]; then
+	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information.") -eq 404 ]]; then
 		echo "\"$1\" package not found!"
 		exit
 	fi
@@ -45,10 +45,10 @@ install_package() {
 	tarball="$REPO"/"$1"/"$1".tar.zst
 
 	# Downloading and extracting tarball to a temporary directory
-	curl "$tarball" -L -s -S -o "$temp"/"$1".tar.zst || error "Failed to fetch package."
+	curl "$tarball" -sSL -o "$temp"/"$1".tar.zst || error "Failed to fetch package."
 
 	# Checking SHA256 hash of tarball and extracting it.
-	hash=$(curl -s -S -L "$REPO/$1/hash" || error "Failed to fetch SHA256 hash.")
+	hash=$(curl -sSL "$REPO/$1/hash" || error "Failed to fetch SHA256 hash.")
 	if echo "$hash $temp/$1.tar.zst" |  sha256sum --check --quiet; then
 		echo "$1 tarball check: OK"
 	else
@@ -56,14 +56,13 @@ install_package() {
 		exit 1
 	fi
 	tar xf "$temp"/"$1".tar.zst -C "$temp_extract" || error "Failed to extract tarball."
-	echo "$temp_extract"
+	
 	# Atomic writes for safely installing packages and not cause programs which are trying to read the file during installing to fetch invalid content.
 	# Atomically installing tarball to the system
 	for file in "$temp_extract"/**; do
 		# This variable gives us the actual location to put the files in the rootfs from the temp path.
 		# For eg. /var/tmp/PackageManager/neofetch/extraction/usr/bin/neofetch -> /usr/bin/neofetch.
 		target="$DESTDIR/${file#$temp_extract}"
-		echo "$target"
 		if [[ -d "$file" ]]; then
 			if [[ ! -d "$target" ]]; then
 				mkdir "$target" || error "Failed to make directory."
@@ -79,7 +78,7 @@ install_package() {
 	done
 
 	# Clear temporary directories
-	# rm -rf "$temp" || error "Failed to remove temporary directory."
+	rm -rf "$temp" || error "Failed to remove temporary directory."
 
 	# Add database entry
 	echo "$1" >> /var/db/PackageManager.list || error "Failed to add package to package database."
