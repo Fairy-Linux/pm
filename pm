@@ -118,11 +118,40 @@ case $1 in
   		exit
   	fi
   	
-	while read p; do
-		   echo "$p"
+	while read file; do
+		   rm -rf "$file" || error "Failed to remove file $file while uninstalling $2."
 	done </var/db/uninstall/"$2"
+
+	# Remove package from database.
+	sed -i -e "s/$2//g" /var/db/PackageManager.list
+	
+	echo "Removed $2"
 	;;
-  
+
+  s | show)
+	# Checking if package exists or not.
+	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$2/hash" || error "Failed to fetch package information.") -eq 404 ]]; then
+		echo "\"$1\" package not found!"
+	  	exit
+	fi
+
+	# Information about the package.
+	info=$(curl -sSL "$REPO/$2/info" || error "Failed to fetch package information.")
+	name=$(echo "$info" | head -1 | tail -1)
+	version=$(echo "$info" | head -2 | tail -1)
+	description=$(echo "$info" | head -3 | tail -1)
+
+	if grep -q "$2" /var/db/PackageManager.list; then
+		installed="Yes."
+	else
+		installed="No."
+	fi
+	
+	echo "Package name -> $name"
+	echo "Version      -> $version"
+	echo "Description  -> $description"
+	echo "Installed    -> $installed"
+    ;;  
   *)
 	echo "$HELP"
     ;;
