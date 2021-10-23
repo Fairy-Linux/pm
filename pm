@@ -112,7 +112,15 @@ case $1 in
 	;;
 
   r | remove)
-	 
+    # Checking if package is installed in the first place.
+    if ! grep -q "$2" /var/db/PackageManager.list; then
+  		echo "$2 is not installed."
+  		exit
+  	fi
+  	
+	while read p; do
+		   echo "$p"
+	done </var/db/uninstall/"$2"
 	;;
   
   *)
