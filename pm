@@ -152,7 +152,22 @@ case $1 in
 	echo "Description  -> $description"
 	echo "Installed    -> $installed"
     ;;  
-  *)
-	echo "$HELP"
-    ;;
+
+
+  l | list)
+  # List packages that are installed
+  pm_list=(/var/db/PackageManager.list)
+  if [ "$2" = "installed" ]; then
+  		echo "$pm_list"
+  elif [ "$2" = "all" ]; then
+        echo "Unimplemented feature"
+  else echo "Invalid command; $2"
+  fi
+  	
+  ;;
+
+ *)
+  echo "$HELP"
+  ;;
+  
 esac
