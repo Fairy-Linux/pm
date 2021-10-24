@@ -155,14 +155,13 @@ case $1 in
 
 
   l | list)
-  # List packages that are installed
-  pm_list=(/var/db/PackageManager.list)
-  if [ "$2" = "installed" ]; then
-  		echo "$pm_list"
-  elif [ "$2" = "all" ]; then
-        echo "Unimplemented feature"
-  else echo "Invalid command; $2"
-  fi
+	# List packages that are installed
+	if [ "$2" = "installed" ]; then
+  		cat /var/db/PackageManager.list || error "Failed to print installed package list."
+  	elif [ "$2" = "all" ]; then
+    	curl -ssL "$REPO/list" || error "Failed to fetch package list."
+  	else echo "Invalid sub-command; $2"
+  	fi
   	
   ;;
 
