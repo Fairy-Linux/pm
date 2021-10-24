@@ -159,7 +159,7 @@ case $1 in
 	if [ "$2" = "installed" ]; then
   		cat /var/db/PackageManager.list || error "Failed to print installed package list."
   	elif [ "$2" = "all" ]; then
-    	curl -ssL "$REPO/list" || error "Failed to fetch package list."
+    	echo "$REPO/list" || error "Failed to fetch package list."
   	else echo "Invalid sub-command; $2"
   	fi
   	
