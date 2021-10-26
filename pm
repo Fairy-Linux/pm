@@ -3,13 +3,16 @@
 REPO="https://raw.githubusercontent.com/Fairy-Linux/dev-repos/main"
 HELP="Fairy Linux Package Manager Help
 
-hp|help                 -> Displays this message!
+hp|help <command>       -> Provides help, optionally about a command
 in|install <package>    -> Installs a package
 re|reinstall <package>  -> Reinstalls a package
 rm|remove <package>     -> Removes a package
+up|upgrade <package>    -> Upgrades the system
 sh|show <package>       -> Gets information about a package
-up|upgrade              -> Upgrades the system
-ls|list <all|installed> -> Lists the packages"
+ls|list <all|installed> -> Lists the packages
+wp|provides <command>   -> Shows which package provides given command
+
+"
 
 # So I can access it from inside functions. God damn it bash.
 package="$2"
@@ -98,9 +101,45 @@ install_package() {
 	fi
 }
 
-case $1 in
+case "$1" in
 hp | help)
-	echo "$HELP"
+	if [[ -z "$2" ]]; then
+		echo "$HELP"
+	else
+		case "$2" in
+			hp | help)
+				echo -e "\nCommand -> Help\nDescription -> Provides help on the package managers commands, optionally about a specific command.\nSyntax -> pm <hp|help> <command>\n"
+			;;
+
+			in | install)
+				echo -e "\nCommand -> Install\nDescription -> Installs packages on the system. Rootfs directory may be changed using the DISTDIR env var.\nSyntax -> pm <in|install> <package>\n"
+			;;
+
+			re | reinstall)
+				echo -e "\nCommand -> Reinstall\nDescription -> Reinstalls packages on the system. Rootfs directory may be changed using the DISTDIR env var.\nSyntax -> pm <re|reinstall> <package>\n"
+			;;
+
+			rm | remove)
+				echo -e "\nCommand -> Remove\nDescription -> Removes a package from the system.\nSyntax -> pm <rm|remove> <package>\n"
+			;;
+
+			up | upgrade)
+				echo -e "\nCommand -> Upgrade\nDescription -> Upgrades the system.\nSyntax -> pm <up|upgrade> <package>\n"
+			;;
+
+			sh | show)
+				echo -e "\nCommand -> Show\nDescription -> Gives detailed information about a package.\nSyntax -> pm <sh|show> <package>\n"
+			;;
+
+			ls | list)
+				echo -e "\nCommand -> List\nDescription -> Lists either all packages installed on the system or all packages available on the servers.\nSyntax -> pm <ls|list> <all|installed>\n"
+			;;
+
+			wp | provides)
+				echo -e "\nCommand -> Provides\nDescription -> Provides package name which provides given command.\nSyntax -> pm <wp|provides> <command>"
+			;;
+		esac
+	fi
 	;;
 
 in | install)
