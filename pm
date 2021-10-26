@@ -82,7 +82,9 @@ install_package() {
 	rm -rf "$temp" || error "Failed to remove temporary directory."
 
 	# Add database entry
-	echo "$1" >>/var/db/PackageManager.list || error "Failed to add package to package database."
+	if [[ ! "$2" = "r" ]]; then
+		echo "$1" >>/var/db/PackageManager.list || error "Failed to add package to package database."
+	fi
 }
 
 case $1 in
@@ -108,7 +110,7 @@ R | reinstall)
 	check_root
 
 	echo "Reinstalling $2!"
-	install_package "$2"
+	install_package "$2" "r"
 	echo "Reinstalled $2"
 	;;
 
