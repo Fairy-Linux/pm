@@ -3,13 +3,13 @@
 REPO="https://raw.githubusercontent.com/Fairy-Linux/dev-repos/main"
 HELP="Fairy Linux Package Manager Help
 
-h|help                 -> Displays this message!
-i|install <package>    -> Installs a package
-R|reinstall <package>  -> Reinstalls a package
-r|remove <package>     -> Removes a package
-s|show <package>       -> Gets information about a package
-u|upgrade              -> Upgrades the system
-l|list <all|installed> -> Lists the packages"
+hp|help                 -> Displays this message!
+in|install <package>    -> Installs a package
+re|reinstall <package>  -> Reinstalls a package
+rm|remove <package>     -> Removes a package
+sh|show <package>       -> Gets information about a package
+up|upgrade              -> Upgrades the system
+ls|list <all|installed> -> Lists the packages"
 
 # So I can access it from inside functions. God damn it bash.
 package="$2"
@@ -99,11 +99,11 @@ install_package() {
 }
 
 case $1 in
-h | help)
+hp | help)
 	echo "$HELP"
 	;;
 
-i | install)
+in | install)
 	check_root
 	check_package
 	
@@ -118,7 +118,7 @@ i | install)
 	echo "Installed $2"
 	;;
 
-R | reinstall)
+re | reinstall)
 	check_root
 	check_package
 	
@@ -127,7 +127,7 @@ R | reinstall)
 	echo "Reinstalled $2"
 	;;
 
-r | remove)
+rm | remove)
 	check_root
 	check_package
 	
@@ -147,7 +147,7 @@ r | remove)
 	echo "Removed $2"
 	;;
 
-s | show)
+sh | show)
 	check_package
 	
 	# Checking if package exists or not.
@@ -175,7 +175,7 @@ s | show)
 	;;
 
 
-	l | list)
+ls | list)
 	# List packages that are installed
 	if [ "$2" = "installed" ]; then
 		cat /var/db/PackageManager.list || error "Failed to print installed package list."
