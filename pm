@@ -72,7 +72,7 @@ install_package() {
 	curl "$hash" -sSL -o "$temp/hash" || error "Failed to fetch package hash." "$1"
 
 	# Checking SHA256 hash of tarball and extracting it.
-	if echo "$(cat $temp/hash) $temp/$1.tar.zst" | sha256sum --check --quiet; then
+	if echo $(cat "$temp"/hash) "$temp"/"$1".tar.zst | sha256sum --check --quiet; then
 		echo "$1 tarball check: OK"
 	else
 		echo "$1 tarball check: ERR"
@@ -81,14 +81,14 @@ install_package() {
 
 	tar xf "$temp"/"$1".tar.zst -C "$temp_extract" || error "Failed to extract tarball." "$1"
 
-	while read file; do
+	while read -r file; do
 		if [[ "$file" == "*/" ]]; then
 			mkdir "$file" -p
 		else
 			atomic_name="${file}_$$_PackageManagerInstall_${file##/*}"
 			cp "$temp_extract$file" "$atomic_name"
 			mv "$atomic_name" "$file"
-			echo "$target" >>"/var/db/uninstall/$1" || error "Failed to add uninstall database information." "$1"
+			echo "$file" >>"/var/db/uninstall/$1" || error "Failed to add uninstall database information." "$1"
 		fi
 	done <"$temp/files"
 
@@ -176,7 +176,7 @@ rm | remove)
 		exit
 	fi
 
-	while read file; do
+	while read -r file; do
 		rm -rf "$file" || error "Failed to remove file $file while uninstalling $2."
 	done </var/db/uninstall/"$2"
 
