@@ -11,6 +11,9 @@ s|show <package>       -> Gets information about a package
 u|upgrade              -> Upgrades the system
 l|list <all|installed> -> Lists the packages"
 
+# So I can access it from inside functions. God damn it bash.
+package="$2"
+
 # Checks if the user is root or not, this will prevent most permission errors.
 # Note - LOGNAME is used instead of $(whoami) to prevent spawning a subshell and increasing the speed of the package manager.
 check_root() {
@@ -25,6 +28,14 @@ error() {
 	echo -e "\033[91m[ ERROR ] - $1 \033[0m"
 	rm -rf "/var/tmp/PackageManager/$2/"
 	exit 1
+}
+
+# For checking if a package name is provided.
+check_package() {
+	if [[ -z "$package" ]]; then
+		echo -e "\033[91m[ ERROR ] - Please specify a package.  \033[0m"
+		exit
+	fi
 }
 
 # Install function.
@@ -94,7 +105,8 @@ h | help)
 
 i | install)
 	check_root
-
+	check_package
+	
 	# Prevents re-installation.
 	if grep -q "$2" /var/db/PackageManager.list; then
 		echo "$2 is already installed."
@@ -108,7 +120,8 @@ i | install)
 
 R | reinstall)
 	check_root
-
+	check_package
+	
 	echo "Reinstalling $2!"
 	install_package "$2" "r"
 	echo "Reinstalled $2"
@@ -116,7 +129,8 @@ R | reinstall)
 
 r | remove)
 	check_root
-
+	check_package
+	
 	# Checking if package is installed in the first place.
 	if ! grep -q "$2" /var/db/PackageManager.list; then
 		echo "$2 is not installed."
@@ -134,6 +148,8 @@ r | remove)
 	;;
 
 s | show)
+	check_package
+	
 	# Checking if package exists or not.
 	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$2/hash" || error "Failed to fetch package information.") -eq 404 ]]; then
 		echo "\"$1\" package not found!"
