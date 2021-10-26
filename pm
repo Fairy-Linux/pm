@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-shopt -s globstar
 
 REPO="https://raw.githubusercontent.com/Fairy-Linux/dev-repos/main"
 HELP="Fairy Linux Package Manager Help
