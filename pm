@@ -23,7 +23,7 @@ check_root() {
 # For formatted and easier error handling.
 error() {
 	echo -e "\033[91m[ ERROR ] - $1 \033[0m"
-	# rm -rf "/var/tmp/PackageManager/$2/"
+	rm -rf "/var/tmp/PackageManager/$2/"
 	exit 1
 }
 
