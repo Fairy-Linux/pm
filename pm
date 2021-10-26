@@ -23,9 +23,9 @@ check_root() {
 
 # For formatted and easier error handling.
 error() {
-  echo -e "\033[91m[ ERROR ] - $1 \033[0m"
-  # rm -rf "/var/tmp/PackageManager/$2/"
-  exit 1
+	echo -e "\033[91m[ ERROR ] - $1 \033[0m"
+	# rm -rf "/var/tmp/PackageManager/$2/"
+	exit 1
 }
 
 # Install function.
@@ -45,7 +45,7 @@ install_package() {
 
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
-		
+
 	# A few variables for easier access
 	temp=/var/tmp/PackageManager/"$1"
 	temp_extract="$temp"/extraction
@@ -58,85 +58,85 @@ install_package() {
 	curl "$files" -sSL -o "$temp/files" || error "Failed to fetch package file list." "$1"
 	curl "$hash" -sSL -o "$temp/hash" || error "Failed to fetch package hash." "$1"
 
-	# Checking SHA256 hash of tarball and extracting it.	
+	# Checking SHA256 hash of tarball and extracting it.
 	if echo "$(cat $temp/hash) $temp/$1.tar.zst" | sha256sum --check --quiet; then
 		echo "$1 tarball check: OK"
 	else
 		echo "$1 tarball check: ERR"
 		error "Invalid SHA256 Sum of tarball, exiting." "$1"
 	fi
-	
+
 	tar xf "$temp"/"$1".tar.zst -C "$temp_extract" || error "Failed to extract tarball." "$1"
 
 	while read file; do
-	   if [[ "$file" == "*/" ]]; then
-	    mkdir "$file" -p
-	   else
-	   	atomic_name="${file}_$$_PackageManagerInstall_${file##/*}"
-	   	cp "$temp_extract$file" "$atomic_name"
-	  	mv "$atomic_name" "$file"
-	  	echo "$target" >> "/var/db/uninstall/$1" || error "Failed to add uninstall database information." "$1"
-	   fi
-	done<"$temp/files"
+		if [[ "$file" == "*/" ]]; then
+			mkdir "$file" -p
+		else
+			atomic_name="${file}_$$_PackageManagerInstall_${file##/*}"
+			cp "$temp_extract$file" "$atomic_name"
+			mv "$atomic_name" "$file"
+			echo "$target" >>"/var/db/uninstall/$1" || error "Failed to add uninstall database information." "$1"
+		fi
+	done <"$temp/files"
 
 	# Clear temporary directories
 	rm -rf "$temp" || error "Failed to remove temporary directory."
 
 	# Add database entry
-	echo "$1" >> /var/db/PackageManager.list || error "Failed to add package to package database."
+	echo "$1" >>/var/db/PackageManager.list || error "Failed to add package to package database."
 }
 
 case $1 in
-  h | help)
-    echo "$HELP"
-    ;;
+h | help)
+	echo "$HELP"
+	;;
 
-  i | install)
-  	check_root
+i | install)
+	check_root
 
-  	# Prevents re-installation.
-  	if grep -q "$2" /var/db/PackageManager.list; then
-  		echo "$2 is already installed."
-  		exit
-  	fi
-  	
+	# Prevents re-installation.
+	if grep -q "$2" /var/db/PackageManager.list; then
+		echo "$2 is already installed."
+		exit
+	fi
+
 	echo "Installing $2!"
 	install_package "$2"
 	echo "Installed $2"
 	;;
-	
-  R | reinstall)
-  	check_root
+
+R | reinstall)
+	check_root
 
 	echo "Reinstalling $2!"
 	install_package "$2"
 	echo "Reinstalled $2"
 	;;
 
-  r | remove)
+r | remove)
 	check_root
-	
-    # Checking if package is installed in the first place.
-    if ! grep -q "$2" /var/db/PackageManager.list; then
-  		echo "$2 is not installed."
-  		exit
-  	fi
-  	
+
+	# Checking if package is installed in the first place.
+	if ! grep -q "$2" /var/db/PackageManager.list; then
+		echo "$2 is not installed."
+		exit
+	fi
+
 	while read file; do
-		   rm -rf "$file" || error "Failed to remove file $file while uninstalling $2."
+		rm -rf "$file" || error "Failed to remove file $file while uninstalling $2."
 	done </var/db/uninstall/"$2"
 
 	# Remove package from database.
 	sed -i -e "s/$2//g" /var/db/PackageManager.list
-	
+
 	echo "Removed $2"
 	;;
 
-  s | show)
+s | show)
 	# Checking if package exists or not.
 	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$2/hash" || error "Failed to fetch package information.") -eq 404 ]]; then
 		echo "\"$1\" package not found!"
-	  	exit
+		exit
 	fi
 
 	# Information about the package.
@@ -150,27 +150,28 @@ case $1 in
 	else
 		installed="No."
 	fi
-	
+
 	echo "Package name -> $name"
 	echo "Version      -> $version"
 	echo "Description  -> $description"
 	echo "Installed    -> $installed"
-    ;;  
+	;;
 
 
-  l | list)
+	l | list)
 	# List packages that are installed
 	if [ "$2" = "installed" ]; then
-  		cat /var/db/PackageManager.list || error "Failed to print installed package list."
-  	elif [ "$2" = "all" ]; then
-    	curl -sSL "$REPO/list" || error "Failed to fetch package list."
-  	else echo "Invalid sub-command; $2"
-  	fi
-  	
-  ;;
+		cat /var/db/PackageManager.list || error "Failed to print installed package list."
+	elif [ "$2" = "all" ]; then
+		curl -sSL "$REPO/list" || error "Failed to fetch package list."
+	else
+		echo "Invalid sub-command; $2"
+	fi
 
- *)
-  echo "$HELP"
-  ;;
-  
+	;;
+
+*)
+	echo "$HELP"
+	;;
+
 esac
