@@ -38,7 +38,13 @@ install_package() {
 	# Getting temporary directories ready for processing.
 	# Note - /tmp is NOT used here due to it being a ramdisk. Large packages could easily choke the entire memor
 	mkdir /var/tmp/PackageManager/"$1"/extraction/ -p || error "Failed to make temporary directory."
-	
+
+	# Mkdir /var/db/uninstall just in case it does not exist.
+	mkdir /var/db/uninstall -p
+
+	# Make package manager list just in case it does not exist.
+	touch /var/db/PackageManager.list
+		
 	# A few variables for easier access
 	temp=/var/tmp/PackageManager/"$1"/
 	temp_extract="$temp"/extraction/
