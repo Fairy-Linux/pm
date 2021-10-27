@@ -49,7 +49,6 @@ fetch_dependencies() {
 	fi
 	DEPENDENCIES+=("$1")
 	while read -r dep; do
-		DEPENDENCIES=("${DEPENDENCIES[@]}" "$dep")
 		fetch_dependencies "$dep"
 	done<<<"$(curl -sSL "$REPO/$1/deps" || error "Failed to fetch dependencies." "$1")"
 }
@@ -57,9 +56,9 @@ fetch_dependencies() {
 
 # Install function.
 install_package() {
-	echo "Fetching dependencies..."
+	echo "Resolving package dependencies..."
 	fetch_dependencies "$1"
-	echo -e "Fetched dependencies. These packages will be installed - ${DEPENDENCIES[*]}"
+	echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]} $(tput sgr0)\n"
 	
 	# Checking if package exists or not
 	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information." "$1") -eq 404 ]]; then
@@ -171,8 +170,7 @@ in | install)
 		echo "$2 is already installed."
 		exit
 	fi
-
-	echo "Installing $2!"
+	
 	install_package "$2"
 	echo "Installed $2"
 	;;
@@ -185,7 +183,6 @@ re | reinstall)
 	
 	check_package
 	
-	echo "Reinstalling $2!"
 	install_package "$2" "r"
 	echo "Reinstalled $2"
 	;;
