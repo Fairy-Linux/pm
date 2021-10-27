@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
 REPO="https://raw.githubusercontent.com/Fairy-Linux/dev-repos/main"
-HELP="Fairy Linux Package Manager Help
+HELP="
+Fairy Linux Package Manager Help
 
 hp|help <command>       -> Provides help, optionally about a command
 in|install <package>    -> Installs a package
@@ -149,6 +150,10 @@ hp | help)
 
 			wp | provides)
 				echo -e "\nCommand -> Provides\nDescription -> Provides package name which provides given command.\nSyntax -> pm <wp|provides> <command>"
+			;;
+
+			*)
+				echo "$HELP"
 			;;
 		esac
 	fi
