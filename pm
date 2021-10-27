@@ -57,7 +57,9 @@ fetch_dependencies() {
 
 # Install function.
 install_package() {
+	echo "Fetching dependencies..."
 	fetch_dependencies "$1"
+	echo -e "Fetched dependencies. These packages will be installed - ${DEPENDENCIES[*]}"
 	
 	# Checking if package exists or not
 	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information." "$1") -eq 404 ]]; then
@@ -157,11 +159,11 @@ hp | help)
 	;;
 
 in | install)
-
+	check_root
+	
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
 	
-	check_root
 	check_package
 	
 	# Prevents re-installation.
@@ -175,12 +177,12 @@ in | install)
 	echo "Installed $2"
 	;;
 
-re | reinstall)
-
+re | reinstall)	
+	check_root
+	
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
 	
-	check_root
 	check_package
 	
 	echo "Reinstalling $2!"
