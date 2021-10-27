@@ -29,7 +29,7 @@ check_root() {
 
 # For formatted and easier error handling.
 error() {
-	echo -e "\033[91m[ ERROR ] - $1 \033[0m"
+	echo "$(tput setaf 9)[ ERROR ] - $1$(tput sgr0)"
 	rm -rf "/var/tmp/PackageManager/$2/"
 	exit 1
 }
