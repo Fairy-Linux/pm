@@ -49,7 +49,7 @@ fetch_dependencies() {
 	fi
 	DEPENDENCIES+=("$1")
 	while read -r dep; do
-		export DEPENDENCIES=("${DEPENDENCIES[@]}" "$dep")
+		DEPENDENCIES=("${DEPENDENCIES[@]}" "$dep")
 		fetch_dependencies "$dep"
 	done<<<"$(curl -sSL "$REPO/$1/deps" || error "Failed to fetch dependencies." "$1")"
 }
@@ -58,6 +58,7 @@ fetch_dependencies() {
 # Install function.
 install_package() {
 	fetch_dependencies "$1"
+	
 	# Checking if package exists or not
 	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information." "$1") -eq 404 ]]; then
 		echo "\"$1\" package not found!"
@@ -108,6 +109,7 @@ install_package() {
 	rm -rf "$temp" || error "Failed to remove temporary directory."
 
 	# Add database entry
+	# $2 for this function shows that if the function is being called for reinstallation or not.
 	if [[ ! "$2" = "r" ]]; then
 		echo "$1" >> /var/db/PackageManager.list || error "Failed to add package to package database."
 	fi
