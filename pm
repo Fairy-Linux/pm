@@ -13,6 +13,7 @@ ls|list <all|installed> -> Lists the packages
 wp|provides <command>   -> Shows which package provides given command
 
 "
+export DEPENDECIES=()
 
 # So I can access it from inside functions. God damn it bash.
 package="$2"
@@ -41,8 +42,22 @@ check_package() {
 	fi
 }
 
+
+fetch_dependencies() {
+	if [[ "$1" = "" ]]; then
+		return 0
+	fi
+	DEPENDENCIES+=("$1")
+	while read -r dep; do
+		export DEPENDENCIES=("${DEPENDENCIES[@]}" "$dep")
+		fetch_dependencies "$dep"
+	done<<<"$(curl -sSL "$REPO/$1/deps" || error "Failed to fetch dependencies." "$1")"
+}
+
+
 # Install function.
 install_package() {
+	fetch_dependencies "$1"
 	# Checking if package exists or not
 	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information." "$1") -eq 404 ]]; then
 		echo "\"$1\" package not found!"
@@ -55,9 +70,6 @@ install_package() {
 
 	# Mkdir /var/db/uninstall just in case it does not exist.
 	mkdir /var/db/uninstall -p
-
-	# Make package manager list just in case it does not exist.
-	touch /var/db/PackageManager.list
 
 	# A few variables for easier access
 	temp=/var/tmp/PackageManager/"$1"
@@ -72,12 +84,12 @@ install_package() {
 	curl "$hash" -sSL -o "$temp/hash" || error "Failed to fetch package hash." "$1"
 
 	# Checking SHA256 hash of tarball and extracting it.
-	if echo $(cat "$temp"/hash) "$temp"/"$1".tar.zst | sha256sum --check --quiet; then
+	if sha256sum --check --quiet; then
 		echo "$1 tarball check: OK"
 	else
 		echo "$1 tarball check: ERR"
 		error "Invalid SHA256 Sum of tarball, exiting." "$1"
-	fi
+	fi<<<"$(echo $(cat "$temp/hash") "$temp/$1.tar.zst")"
 
 	tar xf "$temp"/"$1".tar.zst -C "$temp_extract" || error "Failed to extract tarball." "$1"
 
@@ -97,7 +109,7 @@ install_package() {
 
 	# Add database entry
 	if [[ ! "$2" = "r" ]]; then
-		echo "$1" >>/var/db/PackageManager.list || error "Failed to add package to package database."
+		echo "$1" >> /var/db/PackageManager.list || error "Failed to add package to package database."
 	fi
 }
 
@@ -143,6 +155,10 @@ hp | help)
 	;;
 
 in | install)
+
+	# Make package manager list just in case it does not exist.
+	touch /var/db/PackageManager.list
+	
 	check_root
 	check_package
 	
@@ -158,6 +174,10 @@ in | install)
 	;;
 
 re | reinstall)
+
+	# Make package manager list just in case it does not exist.
+	touch /var/db/PackageManager.list
+	
 	check_root
 	check_package
 	
