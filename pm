@@ -56,9 +56,6 @@ fetch_dependencies() {
 
 # Install function.
 install_package() {
-	echo "Resolving package dependencies..."
-	fetch_dependencies "$1"
-	echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]} $(tput sgr0)\n"
 	
 	# Checking if package exists or not
 	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information." "$1") -eq 404 ]]; then
@@ -159,11 +156,26 @@ hp | help)
 
 in | install)
 	check_root
+	check_package
+	
+	echo "Resolving package dependencies..."
+		fetch_dependencies "$2"
+		echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]}$(tput sgr0)"
+		printf "%sAre you sure you want to continue with the installation? [y/N] %s" "$(tput setaf 2)" "$(tput sgr0)"
+		read -r choice
+		case "$choice" in 
+			y | Y | Yes | yes)
+			;;
+	
+			*)
+				echo "Exiting...";
+				exit 1;
+			;;
+		esac	
+	echo;
 	
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
-	
-	check_package
 	
 	# Prevents re-installation.
 	if grep -q "$2" /var/db/PackageManager.list; then
@@ -177,11 +189,26 @@ in | install)
 
 re | reinstall)	
 	check_root
+	check_package
+	
+	echo "Resolving package dependencies..."
+		fetch_dependencies "$2"
+		echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]}$(tput sgr0)"
+		printf "%sAre you sure you want to continue with the installation? [y/N] %s" "$(tput setaf 2)" "$(tput sgr0)"
+		read -r choice
+		case "$choice" in 
+			y | Y | Yes | yes)
+			;;
+	
+			*)
+				echo "Exiting...";
+				exit 1;
+			;;
+		esac	
+	echo;
 	
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
-	
-	check_package
 	
 	install_package "$2" "r"
 	echo "Reinstalled $2"
