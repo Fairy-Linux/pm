@@ -162,7 +162,8 @@ hp | help)
 in | install)
 	check_root
 	check_package
-	
+
+	# Provide user information about the packages about to be installed and confirm it.
 	echo "Resolving package dependencies..."
 		fetch_dependencies "$2"
 		echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]}$(tput sgr0)"
@@ -173,12 +174,11 @@ in | install)
 			;;
 	
 			*)
-				echo "Exiting...";
-				exit 1;
+				error "Program Aborted." "$2"
 			;;
 		esac	
 	echo;
-	
+
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
 	
@@ -195,7 +195,8 @@ in | install)
 re | reinstall)	
 	check_root
 	check_package
-	
+
+	# Provide user information about the packages about to be installed and confirm it.
 	echo "Resolving package dependencies..."
 		fetch_dependencies "$2"
 		echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]}$(tput sgr0)"
@@ -206,15 +207,18 @@ re | reinstall)
 			;;
 	
 			*)
-				echo "Exiting...";
-				exit 1;
+				error "Program Aborted." "$2"
 			;;
 		esac	
 	echo;
 	
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
+
+	for "package" in "$DEPENDENCIES[@]"
+	do
 	
+	done
 	install_package "$2" "r"
 	echo "Reinstalled $2"
 	;;
@@ -263,6 +267,7 @@ sh | show)
 	echo "Package name -> $name"
 	echo "Version      -> $version"
 	echo "Description  -> $description"
+	echo "Hash         -> $(curl -sSL "$REPO/$2/hash" || "Failed to fetch hash.")"
 	echo "Installed    -> $installed"
 	;;
 
