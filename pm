@@ -168,7 +168,7 @@ in | install)
 		echo "$2 is already installed."
 		exit
 	fi
-	
+
 	# Provide user information about the packages about to be installed and confirm it.
 	echo "Resolving package dependencies..."
 		fetch_dependencies "$2"
@@ -238,8 +238,7 @@ rm | remove)
 	done </var/db/uninstall/"$2"
 
 	# Remove package from database.
-	sed -i -e "s/$2//g" /var/db/PackageManager.list
-	sed '/^$/d' /var/db/PackageManager.list
+	sed -i -e "/$2/d" /var/db/PackageManager.list
 
 	echo "Removed $2"
 	;;
