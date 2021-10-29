@@ -163,6 +163,12 @@ in | install)
 	check_root
 	check_package
 
+	# Prevents re-installation.
+	if grep -q "$2" /var/db/PackageManager.list; then
+		echo "$2 is already installed."
+		exit
+	fi
+	
 	# Provide user information about the packages about to be installed and confirm it.
 	echo "Resolving package dependencies..."
 		fetch_dependencies "$2"
@@ -181,12 +187,6 @@ in | install)
 
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
-	
-	# Prevents re-installation.
-	if grep -q "$2" /var/db/PackageManager.list; then
-		echo "$2 is already installed."
-		exit
-	fi
 	
 	install_package "$2"
 	echo "Installed $2"
@@ -215,10 +215,10 @@ re | reinstall)
 	# Make package manager list just in case it does not exist.
 	touch /var/db/PackageManager.list
 
-	for "package" in "$DEPENDENCIES[@]"
-	do
+	# for "package" in "$DEPENDENCIES[@]"
+	# do
 	
-	done
+	# done
 	install_package "$2" "r"
 	echo "Reinstalled $2"
 	;;
@@ -239,6 +239,7 @@ rm | remove)
 
 	# Remove package from database.
 	sed -i -e "s/$2//g" /var/db/PackageManager.list
+	sed '/^$/d' /var/db/PackageManager.list
 
 	echo "Removed $2"
 	;;
