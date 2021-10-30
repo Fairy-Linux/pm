@@ -49,9 +49,10 @@ fetch_dependencies() {
 		return 0
 	fi
 	DEPENDENCIES+=("$1")
+	deps_fetched=$(curl -sSL "$REPO/$1/deps") || error "Failed to fetch dependencies." "$1"
 	while read -r dep; do
 		fetch_dependencies "$dep"
-	done<<<"$(curl -sSL "$REPO/$1/deps" || error "Failed to fetch dependencies." "$1")"
+	done<<<"$deps_fetched"
 }
 
 
@@ -59,7 +60,8 @@ fetch_dependencies() {
 install_package() {
 	
 	# Checking if package exists or not
-	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$1/hash" || error "Failed to fetch package information." "$1") -eq 404 ]]; then
+	hash=$(curl -sSL "$REPO/$1/hash") || error "Failed to fetch package information." "$1"
+	if [[ "$hash" = "404: Not Found" ]]; then
 		echo "\"$1\" package not found!"
 		exit
 	fi
@@ -170,7 +172,7 @@ in | install)
 	fi
 
 	# Provide user information about the packages about to be installed and confirm it.
-	echo "Resolving package dependencies..."
+	echo "Resolving package dependencies..." ewtoih ohtj ot 
 		fetch_dependencies "$2"
 		echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]}$(tput sgr0)"
 		printf "%sAre you sure you want to continue with the installation? [y/N] %s" "$(tput setaf 2)" "$(tput sgr0)"
