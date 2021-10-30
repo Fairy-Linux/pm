@@ -255,7 +255,9 @@ sh | show)
 	fi
 
 	# Information about the package.
-	info=$(curl -sSL "$REPO/$2/info" || error "Failed to fetch package information.")
+	info=$(curl -sSL "$REPO/$2/info") || error "Failed to fetch package information."
+	hash=$(curl -sSL "$REPO/$2/hash") || error "Failed to fetch hash."
+	deps=$(curl -sSL "$REPO/$2/deps") || error "Failed to fetch dependencies."
 	name=$(echo "$info" | head -1 | tail -1)
 	version=$(echo "$info" | head -2 | tail -1)
 	description=$(echo "$info" | head -3 | tail -1)
@@ -269,7 +271,8 @@ sh | show)
 	echo "Package name -> $name"
 	echo "Version      -> $version"
 	echo "Description  -> $description"
-	echo "Hash         -> $(curl -sSL "$REPO/$2/hash" || "Failed to fetch hash.")"
+	echo "Hash         -> $hash"
+	echo "description  -> $deps"
 	echo "Installed    -> $installed"
 	;;
 
