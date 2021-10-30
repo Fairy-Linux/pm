@@ -249,15 +249,15 @@ sh | show)
 	check_package
 	
 	# Checking if package exists or not.
-	if [[ $(curl -sSL -o /dev/null -I -w "%{http_code}" "$REPO/$2/hash" || error "Failed to fetch package information.") -eq 404 ]]; then
+	hash=$(curl -sSL "$REPO/$1/hash") || error "Failed to fetch package information." "$1"
+	if [[ "$hash" = "404: Not Found" ]]; then
 		echo "\"$1\" package not found!"
 		exit
 	fi
 
 	# Information about the package.
-	info=$(curl -sSL "$REPO/$2/info") || error "Failed to fetch package information."
-	hash=$(curl -sSL "$REPO/$2/hash") || error "Failed to fetch hash."
-	deps=$(curl -sSL "$REPO/$2/deps") || error "Failed to fetch dependencies."
+	info=$(curl -sSL "$REPO/$2/info") || error "Failed to fetch package information." "$1"
+	deps=$(curl -sSL "$REPO/$2/deps") || error "Failed to fetch dependencies." "$1"
 	name=$(echo "$info" | head -1 | tail -1)
 	version=$(echo "$info" | head -2 | tail -1)
 	description=$(echo "$info" | head -3 | tail -1)
