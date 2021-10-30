@@ -123,35 +123,67 @@ hp | help)
 	else
 		case "$2" in
 			hp | help)
-				echo -e "\nCommand -> Help\nDescription -> Provides help on the package managers commands, optionally about a specific command.\nSyntax -> pm <hp|help> <command>\n"
+				echo "
+				Command     -> Help
+				Description -> Provides help on the package managers commands, optionally about a specific command.
+				Syntax      -> pm <hp|help> <command>
+				"
 			;;
 
 			in | install)
-				echo -e "\nCommand -> Install\nDescription -> Installs packages on the system. Rootfs directory may be changed using the DISTDIR env var.\nSyntax -> pm <in|install> <package>\n"
+				echo "
+				Command     -> Install
+				Description -> Installs packages on the system, optionally on an external rootfs using the DESTDIR env var.
+				Syntax      -> pm <in|install> <package>
+				"
 			;;
 
 			re | reinstall)
-				echo -e "\nCommand -> Reinstall\nDescription -> Reinstalls packages on the system. Rootfs directory may be changed using the DISTDIR env var.\nSyntax -> pm <re|reinstall> <package>\n"
+				echo "
+				Command     -> Reinstall
+				Description -> Reinstalls packages on the system, optionally on an external rootfs using the DESTDIR env var.
+				Syntax      -> pm <re|reinstall> <package>
+				"
 			;;
 
 			rm | remove)
-				echo -e "\nCommand -> Remove\nDescription -> Removes a package from the system.\nSyntax -> pm <rm|remove> <package>\n"
+				echo "
+				Command     -> Remove
+				Description -> Removes a package from the system.
+				Syntax      -> pm <rm|remove> <package>
+				"
 			;;
 
 			up | upgrade)
-				echo -e "\nCommand -> Upgrade\nDescription -> Upgrades the system.\nSyntax -> pm <up|upgrade> <package>\n"
+				echo "
+				Command     -> Upgrade
+				Description -> Upgrades the system.
+				Syntax      -> pm <up|upgrade>
+				"
 			;;
 
 			sh | show)
-				echo -e "\nCommand -> Show\nDescription -> Gives detailed information about a package.\nSyntax -> pm <sh|show> <package>\n"
+				echo "
+				Command     -> Show
+				Description -> Gives detailed information about a package.
+				Syntax      -> pm <sh|show> <package>
+				"
 			;;
 
 			ls | list)
-				echo -e "\nCommand -> List\nDescription -> Lists either all packages installed on the system or all packages available on the servers.\nSyntax -> pm <ls|list> <all|installed>\n"
+				echo "
+				Command     -> Remove
+				Description -> Lists either all packages installed on the system or all packages available on available repositories.
+				Syntax      -> pm <rn|remove> <all|installed>
+				"
 			;;
 
 			wp | provides)
-				echo -e "\nCommand -> Provides\nDescription -> Provides package name which provides given command.\nSyntax -> pm <wp|provides> <command>"
+				echo "
+				Command     -> Provides
+				Description -> Provides package name which provides given command.
+				Syntax      -> pm <wp|provides> <command>
+				"
 			;;
 
 			*)
