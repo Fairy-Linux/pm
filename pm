@@ -172,7 +172,7 @@ in | install)
 	fi
 
 	# Provide user information about the packages about to be installed and confirm it.
-	echo "Resolving package dependencies..." ewtoih ohtj ot 
+	echo "Resolving package dependencies..."
 		fetch_dependencies "$2"
 		echo -e "\n$(tput setaf 3)The following packages are going to be installed -\n    ${DEPENDENCIES[*]}$(tput sgr0)"
 		printf "%sAre you sure you want to continue with the installation? [y/N] %s" "$(tput setaf 2)" "$(tput sgr0)"
