@@ -86,12 +86,12 @@ install_package() {
 	curl "$hash" -sSL -o "$temp/hash" || error "Failed to fetch package hash." "$1"
 
 	# Checking SHA256 hash of tarball and extracting it.
-	if sha256sum --check --quiet; then
+	if echo $(cat "$temp/hash") "temp/$1.tar.zst" | sha256sum --check --quiet; then
 		echo "$1 tarball check: OK"
 	else
 		echo "$1 tarball check: ERR"
 		error "Invalid SHA256 Sum of tarball, exiting." "$1"
-	fi<<<"$(echo $(cat "$temp/hash") "$temp/$1.tar.zst")"
+	fi
 
 	tar xf "$temp"/"$1".tar.zst -C "$temp_extract" || error "Failed to extract tarball." "$1"
 
@@ -124,65 +124,65 @@ hp | help)
 		case "$2" in
 			hp | help)
 				echo "
-				Command     -> Help
-				Description -> Provides help on the package managers commands, optionally about a specific command.
-				Syntax      -> pm <hp|help> <command>
+Command     -> Help
+Description -> Provides help on the package managers commands, optionally about a specific command.
+Syntax      -> pm <hp|help> <command>
 				"
 			;;
 
 			in | install)
 				echo "
-				Command     -> Install
-				Description -> Installs packages on the system, optionally on an external rootfs using the DESTDIR env var.
-				Syntax      -> pm <in|install> <package>
+Command     -> Install
+Description -> Installs packages on the system, optionally on an external rootfs using the DESTDIR env var.
+Syntax      -> pm <in|install> <package>
 				"
 			;;
 
 			re | reinstall)
 				echo "
-				Command     -> Reinstall
-				Description -> Reinstalls packages on the system, optionally on an external rootfs using the DESTDIR env var.
-				Syntax      -> pm <re|reinstall> <package>
+Command     -> Reinstall
+Description -> Reinstalls packages on the system, optionally on an external rootfs using the DESTDIR env var.
+Syntax      -> pm <re|reinstall> <package>
 				"
 			;;
 
 			rm | remove)
 				echo "
-				Command     -> Remove
-				Description -> Removes a package from the system.
-				Syntax      -> pm <rm|remove> <package>
+Command     -> Remove
+Description -> Removes a package from the system.
+Syntax      -> pm <rm|remove> <package>
 				"
 			;;
 
 			up | upgrade)
 				echo "
-				Command     -> Upgrade
-				Description -> Upgrades the system.
-				Syntax      -> pm <up|upgrade>
+Command     -> Upgrade
+Description -> Upgrades the system.
+Syntax      -> pm <up|upgrade>
 				"
 			;;
 
 			sh | show)
 				echo "
-				Command     -> Show
-				Description -> Gives detailed information about a package.
-				Syntax      -> pm <sh|show> <package>
+Command     -> Show
+Description -> Gives detailed information about a package.
+Syntax      -> pm <sh|show> <package>
 				"
 			;;
 
 			ls | list)
 				echo "
-				Command     -> Remove
-				Description -> Lists either all packages installed on the system or all packages available on available repositories.
-				Syntax      -> pm <rn|remove> <all|installed>
+Command     -> Remove
+Description -> Lists either all packages installed on the system or all packages available on available repositories.
+Syntax      -> pm <rn|remove> <all|installed>
 				"
 			;;
 
 			wp | provides)
 				echo "
-				Command     -> Provides
-				Description -> Provides package name which provides given command.
-				Syntax      -> pm <wp|provides> <command>
+Command     -> Provides
+Description -> Provides package name which provides given command.
+Syntax      -> pm <wp|provides> <command>
 				"
 			;;
 
@@ -314,7 +314,7 @@ ls | list)
 	if [ "$2" = "installed" ]; then
 		cat /var/db/PackageManager.list || error "Failed to print installed package list."
 	elif [ "$2" = "all" ]; then
-		curl -sSL "$REPO/list" || error "Failed to fetch package list."
+		curl -sSL "$REPO/list" || error "Failed to fetch package list from remote repository."
 	else
 		echo "Invalid sub-command; $2"
 	fi
