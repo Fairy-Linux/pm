@@ -14,7 +14,7 @@ ls|list <all|installed> -> Lists the packages
 wp|provides <command>   -> Shows which package provides given command
 
 "
-export DEPENDECIES=()
+DEPENDECIES=()
 
 # So I can access it from inside functions. God damn it bash.
 package="$2"
